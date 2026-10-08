@@ -1,0 +1,390 @@
+{
+  "info": {
+    "name": "Loja - esteira data-driven",
+    "description": "Uma pasta por etapa do ciclo de vida. O fluxo é a sequência de pastas (shared/catalogo.ts) e o catálogo de produtos vai à parte, como massa de dados: o Newman roda a mesma sequência uma vez por produto.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Depois de TODA requisição: o estado da massa desta iteração vai para o runner (api/run.ts),",
+          "// que guarda o último de cada iteração. Nada fica em arquivo pela collection.",
+          "console.log('MASSA::' + JSON.stringify({",
+          "  iteracao: pm.info.iteration,",
+          "  produtoCatalogo: pm.iterationData.get('id'),",
+          "  usuario: {",
+          "    id: pm.environment.get('usuarioId'),",
+          "    nome: pm.environment.get('nomeUsuario'),",
+          "    email: pm.environment.get('email'),",
+          "    senha: pm.environment.get('senha'),",
+          "  },",
+          "  produto: {",
+          "    id: pm.environment.get('produtoId'),",
+          "    nome: pm.environment.get('nomeProduto'),",
+          "    preco: Number(pm.iterationData.get('preco')),",
+          "    descricao: pm.iterationData.get('descricao'),",
+          "    estoque: Number(pm.iterationData.get('estoque')),",
+          "  },",
+          "  quantidadeCompra: Number(pm.iterationData.get('quantidadeCompra')),",
+          "}));"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "AQUISICAO",
+      "description": "Cria o cliente (administrador), autentica e cadastra o produto da linha do catálogo.",
+      "item": [
+        {
+          "name": "Cadastrar usuário",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Cada iteração começa limpa: nada da massa anterior pode vazar para esta.",
+                  "['usuarioId', 'token', 'produtoId', 'carrinhoId'].forEach((v) => pm.environment.unset(v));",
+                  "const sufixo = Date.now().toString(36) + pm.info.iteration;",
+                  "pm.environment.set('email', 'qa.' + sufixo + '@esteira.dev');",
+                  "pm.environment.set('senha', 'Qa#' + Math.random().toString(36).slice(2, 10) + 'x9');",
+                  "pm.environment.set('nomeUsuario', 'QA Esteira ' + pm.iterationData.get('id'));",
+                  "// Nome único: o ServeRest não aceita dois produtos com o mesmo nome.",
+                  "pm.environment.set('nomeProduto', pm.iterationData.get('nome') + ' #' + sufixo);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 - usuário cadastrado', () => pm.response.to.have.status(201));",
+                  "pm.test('mensagem de sucesso', () =>",
+                  "  pm.expect(pm.response.json().message).to.eql('Cadastro realizado com sucesso'));",
+                  "pm.environment.set('usuarioId', pm.response.json()._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{nomeUsuario}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{senha}}\",\n  \"administrador\": \"true\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/usuarios",
+              "host": ["{{baseUrl}}"],
+              "path": ["usuarios"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 - login realizado', () => pm.response.to.have.status(200));",
+                  "const { authorization } = pm.response.json();",
+                  "pm.test('token Bearer', () => pm.expect(authorization).to.match(/^Bearer \\S+$/));",
+                  "pm.environment.set('token', authorization);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{senha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["login"]
+            }
+          }
+        },
+        {
+          "name": "Cadastrar produto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 - produto cadastrado', () => pm.response.to.have.status(201));",
+                  "pm.environment.set('produtoId', pm.response.json()._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"{{nomeProduto}}\",\n  \"preco\": {{preco}},\n  \"descricao\": \"{{descricao}}\",\n  \"quantidade\": {{estoque}}\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/produtos",
+              "host": ["{{baseUrl}}"],
+              "path": ["produtos"]
+            }
+          }
+        },
+        {
+          "name": "Consultar produto",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 - produto encontrado', () => pm.response.to.have.status(200));",
+                  "pm.test('contrato do produto', () =>",
+                  "  pm.response.to.have.jsonSchema({",
+                  "    type: 'object',",
+                  "    required: ['nome', 'preco', 'descricao', 'quantidade', '_id'],",
+                  "    properties: {",
+                  "      nome: { type: 'string' },",
+                  "      preco: { type: 'integer' },",
+                  "      descricao: { type: 'string' },",
+                  "      quantidade: { type: 'integer' },",
+                  "      _id: { type: 'string' },",
+                  "    },",
+                  "  }));",
+                  "const p = pm.response.json();",
+                  "pm.test('valores gravados = catálogo', () => {",
+                  "  pm.expect(p.nome).to.eql(pm.environment.get('nomeProduto'));",
+                  "  pm.expect(p.preco).to.eql(Number(pm.iterationData.get('preco')));",
+                  "  pm.expect(p.quantidade).to.eql(Number(pm.iterationData.get('estoque')));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/produtos/{{produtoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["produtos", "{{produtoId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "COMPRA",
+      "description": "Abre um carrinho com a quantidade da linha do catálogo e confere a baixa de estoque.",
+      "item": [
+        {
+          "name": "Criar carrinho",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 - carrinho criado', () => pm.response.to.have.status(201));",
+                  "pm.environment.set('carrinhoId', pm.response.json()._id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produtos\": [\n    {\n      \"idProduto\": \"{{produtoId}}\",\n      \"quantidade\": {{quantidadeCompra}}\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/carrinhos",
+              "host": ["{{baseUrl}}"],
+              "path": ["carrinhos"]
+            }
+          }
+        },
+        {
+          "name": "Conferir baixa de estoque",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 - produto encontrado', () => pm.response.to.have.status(200));",
+                  "const esperado = Number(pm.iterationData.get('estoque')) - Number(pm.iterationData.get('quantidadeCompra'));",
+                  "pm.test('estoque = estoque - quantidade comprada', () =>",
+                  "  pm.expect(pm.response.json().quantidade).to.eql(esperado));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/produtos/{{produtoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["produtos", "{{produtoId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CANCELAMENTO",
+      "description": "Cancela a compra: o carrinho é excluído e o estoque volta.",
+      "item": [
+        {
+          "name": "Cancelar compra",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 - compra cancelada', () => pm.response.to.have.status(200));",
+                  "pm.test('estoque reabastecido', () =>",
+                  "  pm.expect(pm.response.json().message).to.include('Estoque dos produtos reabastecido'));",
+                  "pm.environment.unset('carrinhoId');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carrinhos/cancelar-compra",
+              "host": ["{{baseUrl}}"],
+              "path": ["carrinhos", "cancelar-compra"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CONCLUSAO",
+      "description": "Conclui a compra: o carrinho é excluído e o estoque fica baixado.",
+      "item": [
+        {
+          "name": "Concluir compra",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 - compra concluída', () => pm.response.to.have.status(200));",
+                  "pm.test('mensagem de sucesso', () =>",
+                  "  pm.expect(pm.response.json().message).to.eql('Registro excluído com sucesso'));",
+                  "pm.environment.unset('carrinhoId');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "{{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/carrinhos/concluir-compra",
+              "host": ["{{baseUrl}}"],
+              "path": ["carrinhos", "concluir-compra"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

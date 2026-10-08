@@ -1,0 +1,84 @@
+name: Esteira E2E
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Dias úteis, 06:00 em Brasília: detecta mudança no ambiente mesmo sem commit.
+    - cron: '0 9 * * 1-5'
+  workflow_dispatch:
+
+concurrency:
+  group: esteira-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  qualidade:
+    name: Typecheck, lint, formatação e testes unitários
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+
+  e2e:
+    name: E2E · ${{ matrix.fluxo }}
+    needs: qualidade
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        fluxo: [compra, cancelamento, conclusao]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Massa → espera → validação → evidência
+        run: npm run e2e -- ${{ matrix.fluxo }} --todos
+      - name: Relatórios e evidências
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: resultado-${{ matrix.fluxo }}
+          path: |
+            reports/
+            evidencias/
+          retention-days: 14
+
+  publicar:
+    name: Publicar relatórios no GitHub Pages
+    needs: e2e
+    if: ${{ !cancelled() && github.ref == 'refs/heads/main' && github.event_name != 'pull_request' }}
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: resultado-*
+          path: site
+      - run: node pipeline/indice-pages.ts site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

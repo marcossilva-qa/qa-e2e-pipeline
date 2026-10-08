@@ -1,0 +1,39 @@
+[
+  {
+    "id": "FONE_BT",
+    "nome": "Fone Bluetooth",
+    "categoria": "audio",
+    "preco": 199,
+    "descricao": "Fone sem fio com cancelamento de ruído",
+    "estoque": 25,
+    "quantidadeCompra": 2
+  },
+  {
+    "id": "TECLADO_MEC",
+    "nome": "Teclado Mecânico",
+    "categoria": "perifericos",
+    "preco": 349,
+    "descricao": "Teclado mecânico ABNT2 com switches táteis",
+    "estoque": 12,
+    "quantidadeCompra": 1
+  },
+  {
+    "id": "MONITOR_27",
+    "nome": "Monitor 27 polegadas",
+    "categoria": "video",
+    "preco": 1499,
+    "descricao": "Monitor IPS 27 polegadas QHD",
+    "estoque": 8,
+    "quantidadeCompra": 3
+  },
+  {
+    "id": "WEBCAM_HD",
+    "nome": "Webcam Full HD",
+    "categoria": "video",
+    "preco": 279,
+    "descricao": "Webcam 1080p com microfone embutido",
+    "estoque": 15,
+    "quantidadeCompra": 1,
+    "standby": "Exemplo de cenário em standby: a pré-checagem para antes de criar massa."
+  }
+]
