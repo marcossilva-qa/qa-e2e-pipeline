@@ -1,7 +1,7 @@
 # Esteira de QA ponta a ponta · API + UI
 
-[![Esteira E2E](https://github.com/SEU-USUARIO/qa-e2e-pipeline/actions/workflows/esteira.yml/badge.svg)](https://github.com/SEU-USUARIO/qa-e2e-pipeline/actions/workflows/esteira.yml)
-[![Relatórios](https://img.shields.io/badge/relat%C3%B3rios-GitHub%20Pages-1d4ed8)](https://SEU-USUARIO.github.io/qa-e2e-pipeline/)
+[![Esteira E2E](https://github.com/marcossilva-qa/qa-e2e-pipeline/actions/workflows/esteira.yml/badge.svg)](https://github.com/marcossilva-qa/qa-e2e-pipeline/actions/workflows/esteira.yml)
+[![Relatórios](https://img.shields.io/badge/relat%C3%B3rios-GitHub%20Pages-1d4ed8)](https://marcossilva-qa.github.io/qa-e2e-pipeline/)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
 ![Playwright](https://img.shields.io/badge/Playwright-1.63-2ead33)
 ![Newman](https://img.shields.io/badge/Newman-data--driven-ef5b25)
@@ -18,7 +18,7 @@ npm run e2e -- cancelamento --todos
 > pedidos no Salesforce e gera a evidência de mais de 2 mil cenários. O código original é do
 > cliente e não pode ser publicado, então reproduzi **a mesma arquitetura e as mesmas técnicas**
 > contra o [ServeRest](https://serverest.dev), uma loja pública feita para estudo de testes.
-> O case completo, com resultados, está no [meu portfólio](https://SEU-USUARIO.github.io).
+> O case completo, com resultados, está no [meu portfólio](https://marcossilva-qa.github.io).
 
 ## Arquitetura
 
@@ -126,7 +126,7 @@ podem ser trocados por `API_URL` e `FRONT_URL`, por exemplo para um ServeRest lo
 | Relatório de validações, com prints e conferências | `evidencias/<execução>/<fluxo>-<produto>.html`                 |
 | Relatório do Playwright, com trace das falhas      | `npm run report`                                               |
 | Histórico de execuções                             | `execucoes/historico.jsonl`                                    |
-| Tudo isso, da última execução no CI                | [GitHub Pages](https://SEU-USUARIO.github.io/qa-e2e-pipeline/) |
+| Tudo isso, da última execução no CI                | [GitHub Pages](https://marcossilva-qa.github.io/qa-e2e-pipeline/) |
 
 ## Estrutura
 
