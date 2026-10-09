@@ -28,6 +28,7 @@ function contagem(junit: string): { testes: number; falhas: number } {
   return { testes: attr('tests'), falhas: attr('failures') + attr('errors') };
 }
 
+fs.mkdirSync(site, { recursive: true });
 const fluxos = fs
   .readdirSync(site)
   .filter((d) => d.startsWith('resultado-'))

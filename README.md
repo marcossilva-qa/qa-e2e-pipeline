@@ -120,12 +120,12 @@ podem ser trocados por `API_URL` e `FRONT_URL`, por exemplo para um ServeRest lo
 
 ## Onde ficam os resultados
 
-| O quê                                              | Onde                                                           |
-| -------------------------------------------------- | -------------------------------------------------------------- |
-| Relatório da massa (Newman htmlextra)              | `reports/newman/<execução>.html`                               |
-| Relatório de validações, com prints e conferências | `evidencias/<execução>/<fluxo>-<produto>.html`                 |
-| Relatório do Playwright, com trace das falhas      | `npm run report`                                               |
-| Histórico de execuções                             | `execucoes/historico.jsonl`                                    |
+| O quê                                              | Onde                                                              |
+| -------------------------------------------------- | ----------------------------------------------------------------- |
+| Relatório da massa (Newman htmlextra)              | `reports/newman/<execução>.html`                                  |
+| Relatório de validações, com prints e conferências | `evidencias/<execução>/<fluxo>-<produto>.html`                    |
+| Relatório do Playwright, com trace das falhas      | `npm run report`                                                  |
+| Histórico de execuções                             | `execucoes/historico.jsonl`                                       |
 | Tudo isso, da última execução no CI                | [GitHub Pages](https://marcossilva-qa.github.io/qa-e2e-pipeline/) |
 
 ## Estrutura
