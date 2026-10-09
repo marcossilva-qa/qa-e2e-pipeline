@@ -1,10 +1,20 @@
-# Esteira de QA ponta a ponta · API + UI
+<p align="center">
+  <img src="docs/imagens/banner.png" alt="qa-e2e-pipeline: esteira de QA ponta a ponta com TypeScript, Playwright, Newman e GitHub Actions" width="100%">
+</p>
 
-[![Esteira E2E](https://github.com/marcossilva-qa/qa-e2e-pipeline/actions/workflows/esteira.yml/badge.svg)](https://github.com/marcossilva-qa/qa-e2e-pipeline/actions/workflows/esteira.yml)
-[![Relatórios](https://img.shields.io/badge/relat%C3%B3rios-GitHub%20Pages-1d4ed8)](https://marcossilva-qa.github.io/qa-e2e-pipeline/)
-![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178c6)
-![Playwright](https://img.shields.io/badge/Playwright-1.63-2ead33)
-![Newman](https://img.shields.io/badge/Newman-data--driven-ef5b25)
+<p align="center">
+  <a href="https://github.com/marcossilva-qa/qa-e2e-pipeline/actions/workflows/esteira.yml"><img src="https://github.com/marcossilva-qa/qa-e2e-pipeline/actions/workflows/esteira.yml/badge.svg" alt="Esteira E2E"></a>
+  <a href="https://marcossilva-qa.github.io/qa-e2e-pipeline/"><img src="https://img.shields.io/badge/relat%C3%B3rios-ao%20vivo-4f8dff?style=flat&labelColor=0b1630" alt="Relatórios ao vivo"></a>
+  <img src="https://img.shields.io/badge/TypeScript-strict-3178c6?style=flat&labelColor=0b1630&logo=typescript&logoColor=white" alt="TypeScript strict">
+  <img src="https://img.shields.io/badge/Playwright-1.63-2ead33?style=flat&labelColor=0b1630&logo=playwright&logoColor=white" alt="Playwright 1.63">
+  <img src="https://img.shields.io/badge/Newman-data--driven-ef5b25?style=flat&labelColor=0b1630&logo=postman&logoColor=white" alt="Newman data-driven">
+</p>
+
+<p align="center">
+  <a href="https://marcossilva-qa.github.io/qa-e2e-pipeline/"><b>Relatórios da última execução</b></a> ·
+  <a href="https://marcossilva-qa.github.io/case/esteira-qa.html"><b>Case completo</b></a> ·
+  <a href="https://marcossilva-qa.github.io"><b>Portfólio</b></a>
+</p>
 
 Um comando cria a massa de teste pela API, espera o sistema chegar ao estado final, valida
 campo a campo na interface e entrega a evidência pronta, com print de cada tela.
@@ -19,6 +29,17 @@ npm run e2e -- cancelamento --todos
 > cliente e não pode ser publicado, então reproduzi **a mesma arquitetura e as mesmas técnicas**
 > contra o [ServeRest](https://serverest.dev), uma loja pública feita para estudo de testes.
 > O case completo, com resultados, está no [meu portfólio](https://marcossilva-qa.github.io).
+
+## Em ação
+
+<p align="center">
+  <img src="docs/imagens/terminal.png" alt="Saída real de npm run e2e -- cancelamento --todos: pré-checagem, massa com 39 asserções e 0 falhas, espera, 3 testes aprovados" width="90%">
+</p>
+
+| Evidência por cenário                                                                                                                    | Relatório do Playwright                                                                          |
+| ---------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| ![Relatório de validações: esperado × obtido de cada campo e o print da tela com a linha da massa destacada](docs/imagens/evidencia.png) | ![Relatório do Playwright com os três cenários aprovados](docs/imagens/relatorio-playwright.png) |
+| Cada tela conferida campo a campo (esperado × obtido), com a linha da massa destacada no print e a senha mascarada.                      | Um teste por massa criada, com tags de fluxo e categoria e trace das falhas.                     |
 
 ## Arquitetura
 
@@ -136,6 +157,7 @@ api/
   colecao/                      collection Postman v2.1 (importável no Postman)
   ocultacao.ts                  o que esconder no relatório, calculado da collection
   run.ts                        executa o Newman e devolve a massa de cada produto
+docs/imagens/                   banner e prints usados neste README
 pipeline/
   e2e.ts                        orquestrador: pré-checagem → massa → espera → validação → histórico
   aguardar.ts                   espera pelo estado final, lido pela API
